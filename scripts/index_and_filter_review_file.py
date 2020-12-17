@@ -1,5 +1,5 @@
-import os,sys
-import gzip
+import os, sys, gzip
+from tqdm import tqdm 
 
 review_file = sys.argv[1]
 output_path = sys.argv[2]
@@ -13,7 +13,7 @@ word_count_map = {}
 user_set = set()
 product_set = set()
 with gzip.open(review_file, 'r') as g:
-	for l in g:
+	for i, l in enumerate(tqdm(g)):
 		l = eval(l)
 		user = l['reviewerID']
 		product = l['asin']
@@ -37,15 +37,15 @@ for key in word_count_map:
 		delete_key.add(key)
 #output word, user, product indexes
 word_list = list(set(word_count_map.keys()) - delete_key)
-with gzip.open(output_path + 'vocab.txt.gz','w') as fout:
+with gzip.open(output_path + 'vocab.txt.gz', mode='wt') as fout:
 	for word in word_list:
 		fout.write(word + '\n')
 user_list = list(user_set)
-with gzip.open(output_path + 'users.txt.gz','w') as fout:
+with gzip.open(output_path + 'users.txt.gz', mode='wt') as fout:
 	for user in user_list:
 		fout.write(user + '\n')
 product_list = list(product_set)
-with gzip.open(output_path + 'product.txt.gz','w') as fout:
+with gzip.open(output_path + 'product.txt.gz', mode='wt') as fout:
 	for product in product_list:
 		fout.write(product + '\n')
 
@@ -60,11 +60,11 @@ def index_set(s):
 word_map = index_set(word_list)
 user_map = index_set(user_list)
 product_map = index_set(product_list)
-with gzip.open(output_path + 'review_text.txt.gz', 'w') as fout_text, gzip.open(output_path + 'review_u_p.txt.gz', 'w') as fout_u_p:
-	with gzip.open(output_path + 'review_id.txt.gz', 'w') as fout_id:
+with gzip.open(output_path + 'review_text.txt.gz', mode='wt') as fout_text, gzip.open(output_path + 'review_u_p.txt.gz', mode='wt') as fout_u_p:
+	with gzip.open(output_path + 'review_id.txt.gz', mode='wt') as fout_id:
 		with gzip.open(review_file, 'r') as g:
 			index = 0
-			for l in g:
+			for i, l in enumerate(tqdm(g)):
 				l = eval(l)
 				user = l['reviewerID']
 				product = l['asin']
