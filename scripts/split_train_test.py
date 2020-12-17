@@ -1,5 +1,5 @@
-import os,sys
-import gzip
+import os, sys, gzip
+from tqdm import tqdm
 import numpy as np
 
 data_path = sys.argv[1]
@@ -7,9 +7,9 @@ sample_rate = float(sys.argv[2])
 
 #build user-review map
 user_review_map = {}
-with gzip.open(data_path + 'review_u_p.txt.gz', 'r') as fin:
+with gzip.open(os.path.join(data_path, 'review_u_p.txt.gz'), 'rt') as fin:
 	index = 0
-	for line in fin:
+	for line in tqdm(fin):
 		arr = line.strip().split(' ')
 		user = arr[0]
 		if user not in user_review_map:
@@ -28,8 +28,8 @@ for user in user_review_map:
 #read review_text and construct train/test sets
 train_user_product_map = {}
 test_user_product_map = {}
-with gzip.open(data_path + 'train.txt.gz', 'w') as train_fout, gzip.open(data_path + 'test.txt.gz', 'w') as test_fout:
-	with gzip.open(data_path + 'review_u_p.txt.gz', 'r') as info_fin, gzip.open(data_path + 'review_text.txt.gz', 'r') as text_fin:
+with gzip.open(os.path.join(data_path, 'train.txt.gz'), 'wt') as train_fout, gzip.open(os.path.join(data_path, 'test.txt.gz'), 'wt') as test_fout:
+	with gzip.open(os.path.join(data_path, 'review_u_p.txt.gz'), 'rt') as info_fin, gzip.open(os.path.join(data_path, 'review_text.txt.gz'), 'rt') as text_fin:
 		info_line = info_fin.readline()
 		text_line = text_fin.readline()
 		index = 0
@@ -50,8 +50,8 @@ with gzip.open(data_path + 'train.txt.gz', 'w') as train_fout, gzip.open(data_pa
 			text_line = text_fin.readline()
 
 #read review_u_p and construct train/test id sets
-with gzip.open(data_path + 'train_id.txt.gz', 'w') as train_fout, gzip.open(data_path + 'test_id.txt.gz', 'w') as test_fout:
-	with gzip.open(data_path + 'review_u_p.txt.gz', 'r') as info_fin, gzip.open(data_path + 'review_id.txt.gz', 'r') as id_fin:
+with gzip.open(os.path.join(data_path, 'train_id.txt.gz'), 'wt') as train_fout, gzip.open(os.path.join(data_path, 'test_id.txt.gz'), 'wt') as test_fout:
+	with gzip.open(os.path.join(data_path, 'review_u_p.txt.gz'), 'rt') as info_fin, gzip.open(os.path.join(data_path, 'review_id.txt.gz'), 'rt') as id_fin:
 		info_line = info_fin.readline()
 		id_line = id_fin.readline()
 		index = 0
@@ -71,16 +71,16 @@ for u_idx in test_user_product_map:
 
 #output qrels
 product_ids = []
-with gzip.open(data_path + 'product.txt.gz', 'r') as fin:
-	for line in fin:
+with gzip.open(os.path.join(data_path, 'product.txt.gz'), 'rt') as fin:
+	for line in tqdm(fin):
 		product_ids.append(line.strip())
 
 user_ids = []
-with gzip.open(data_path + 'users.txt.gz', 'r') as fin:
-	for line in fin:
+with gzip.open(os.path.join(data_path, 'users.txt.gz'), 'rt') as fin:
+	for line in tqdm(fin):
 		user_ids.append(line.strip())
 
-with open(data_path + 'test.qrels', 'w') as fout:
+with open(os.path.join(data_path, 'test.qrels'), 'wt') as fout:
 	for u_idx in test_user_product_map:
 		user_id = user_ids[u_idx]
 		for product_idx in test_user_product_map[u_idx]:
