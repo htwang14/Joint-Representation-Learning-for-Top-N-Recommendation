@@ -23,14 +23,14 @@ with open(test_qrel_file) as fin:
 def metrics(doc_list, rel_set):
 	dcg = 0.0
 	hit_num = 0.0
-	for i in xrange(len(doc_list)):
+	for i in range(len(doc_list)):
 		if doc_list[i] in rel_set:
 			#dcg
 			dcg += 1/(log(i+2)/log(2))
 			hit_num += 1
 	#idcg
 	idcg = 0.0
-	for i in xrange(min(len(rel_set),len(doc_list))):
+	for i in range(min(len(rel_set),len(doc_list))):
 		idcg += 1/(log(i+2)/log(2))
 	ndcg = dcg/idcg
 	recall = hit_num / len(rel_set)
