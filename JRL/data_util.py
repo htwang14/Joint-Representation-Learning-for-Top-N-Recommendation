@@ -11,17 +11,17 @@ class Tensorflow_data:
 	def __init__(self, data_path, input_train_dir, set_name):
 		#get product/user/vocabulary information
 		self.product_ids = []
-		with gzip.open(data_path + 'product.txt.gz', 'r') as fin:
+		with gzip.open(data_path + 'product.txt.gz', 'rt') as fin:
 			for line in fin:
 				self.product_ids.append(line.strip())
 		self.product_size = len(self.product_ids)
 		self.user_ids = []
-		with gzip.open(data_path + 'users.txt.gz', 'r') as fin:
+		with gzip.open(data_path + 'users.txt.gz', 'rt') as fin:
 			for line in fin:
 				self.user_ids.append(line.strip())
 		self.user_size = len(self.user_ids)
 		self.words = []
-		with gzip.open(data_path + 'vocab.txt.gz', 'r') as fin:
+		with gzip.open(data_path + 'vocab.txt.gz', 'rt') as fin:
 			for line in fin:
 				self.words.append(line.strip())
 		self.vocab_size = len(self.words)
@@ -31,7 +31,7 @@ class Tensorflow_data:
 		self.vocab_distribute = np.zeros(self.vocab_size) 
 		self.review_info = []
 		self.review_text = []
-		with gzip.open(input_train_dir + set_name + '.txt.gz', 'r') as fin:
+		with gzip.open(input_train_dir + set_name + '.txt.gz', 'rt') as fin:
 			for line in fin:
 				arr = line.strip().split('\t')
 				self.review_info.append((int(arr[0]), int(arr[1]))) # (user_idx, product_idx)
@@ -54,7 +54,7 @@ class Tensorflow_data:
 			return
 		threshold = sum(self.vocab_distribute) * subsample_threshold
 		count_sub_sample = 0
-		for i in xrange(self.vocab_size):
+		for i in range(self.vocab_size):
 			#vocab_distribute[i] could be zero if the word does not appear in the training set
 			self.sub_sampling_rate[i] = min((np.sqrt(float(self.vocab_distribute[i]) / threshold) + 1) * threshold / float(self.vocab_distribute[i]),
 											1.0)
@@ -62,9 +62,9 @@ class Tensorflow_data:
 
 	def read_image_features(self, data_path):
 		self.img_feature_num = 4096
-		self.img_features = [None for i in xrange(self.product_size)]
+		self.img_features = [None for i in range(self.product_size)]
 		with open(data_path + 'product_image_feature.b', 'rb') as fin:
-			for i in xrange(self.product_size):
+			for i in range(self.product_size):
 				float_array = array('f')
 				float_array.fromfile(fin, 4096)
 				self.img_features[i] = list(float_array)
@@ -81,9 +81,9 @@ class Tensorflow_data:
 		#return user.values, item.values
 
 	def read_train_product_ids(self, data_path):
-		self.user_train_product_set_list = [set() for i in xrange(self.user_size)]
+		self.user_train_product_set_list = [set() for i in range(self.user_size)]
 		self.train_review_size = 0
-		with gzip.open(data_path + 'train.txt.gz', 'r') as fin:
+		with gzip.open(data_path + 'train.txt.gz', 'rt') as fin:
 			for line in fin:
 				self.train_review_size += 1
 				arr = line.strip().split('\t')
@@ -109,7 +109,7 @@ class Tensorflow_data:
 		with open(output_path + 'test.'+similarity_func+'.ranklist', 'w') as rank_fout:
 			for u_idx in user_ranklist_map:
 				user_id = self.user_ids[u_idx]
-				for i in xrange(len(user_ranklist_map[u_idx])):
+				for i in range(len(user_ranklist_map[u_idx])):
 					product_id = self.product_ids[user_ranklist_map[u_idx][i]]
 					rank_fout.write(user_id + ' Q0 ' + product_id + ' ' + str(i+1)
 							+ ' ' + str(user_ranklist_score_map[u_idx][i]) + ' MultiViewEmbedding\n')
@@ -122,8 +122,8 @@ class Tensorflow_data:
 			dimensions = len(embeddings[0])
 			emb_fout.write(str(length) + '\n')
 			emb_fout.write(str(dimensions) + '\n')
-			for i in xrange(length):
-				for j in xrange(dimensions):
+			for i in range(length):
+				for j in range(dimensions):
 					emb_fout.write(str(embeddings[i][j]) + ' ')
 				emb_fout.write('\n')
 				 
