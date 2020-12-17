@@ -114,11 +114,15 @@ def train():
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'train')
 	data_set.sub_sampling(FLAGS.subsampling_rate)
 
-	# add image features
-	data_set.read_image_features(FLAGS.data_dir)
+	# # add image features
+	# data_set.read_image_features(FLAGS.data_dir)
 
-	# add rating features
-	data_set.read_latent_factor(FLAGS.data_dir)
+	# # add rating features
+	# data_set.read_latent_factor(FLAGS.data_dir)
+
+	# create dir:
+	if not os.path.isdir(FLAGS.train_dir):
+		os.makedirs(FLAGS.train_dir)
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
@@ -162,7 +166,7 @@ def train():
 				if current_step % FLAGS.steps_per_checkpoint == 0:
 					print("Epoch %d Words %d/%d: lr = %5.3f loss = %6.2f words/sec = %5.2f prepare_time %.2f step_time %.2f\r" %
 							(current_epoch, model.finished_word_num, model.words_to_train, learning_rate, loss, 
-								(model.finished_word_num- previous_words)/(time.time() - start_time), get_batch_time, step_time), end="")
+								(model.finished_word_num- previous_words)/(time.time() - start_time), get_batch_time, step_time))
 					step_time, loss = 0.0, 0.0
 					current_step = 1
 					get_batch_time = 0.0
@@ -191,10 +195,10 @@ def get_product_scores():
 	
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'test')
 	data_set.read_train_product_ids(FLAGS.input_train_dir)
-	# add image features
-	data_set.read_image_features(FLAGS.data_dir)
-	# add rating features
-	data_set.read_latent_factor(FLAGS.data_dir)
+	# # add image features
+	# data_set.read_image_features(FLAGS.data_dir)
+	# # add rating features
+	# data_set.read_latent_factor(FLAGS.data_dir)
 
 	current_step = 0
 	config = tf.ConfigProto()
@@ -227,8 +231,7 @@ def get_product_scores():
 				user_ranklist_map[u_idx],user_ranklist_score_map[u_idx] = data_set.compute_test_product_ranklist(u_idx, user_product_scores[i],
 													sorted_product_idxs, FLAGS.rank_cutoff) #(product name, rank)
 			if current_step % FLAGS.steps_per_checkpoint == 0:
-				print("Finish test review %d/%d\r" %
-						(model.cur_review_i, model.review_size), end="")
+				print("Finish test review %d/%d\r" % (model.cur_review_i, model.review_size))
 
 	data_set.output_ranklist(user_ranklist_map, user_ranklist_score_map, FLAGS.train_dir, FLAGS.similarity_func)
 	return
@@ -239,10 +242,10 @@ def output_embedding():
 	
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir,FLAGS.input_train_dir, 'test')
 	data_set.read_train_product_ids(FLAGS.input_train_dir)
-	# add image features
-	data_set.read_image_features(FLAGS.data_dir)
-	# add rating features
-	data_set.read_latent_factor(FLAGS.data_dir)
+	# # add image features
+	# data_set.read_image_features(FLAGS.data_dir)
+	# # add rating features
+	# data_set.read_latent_factor(FLAGS.data_dir)
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
@@ -281,8 +284,8 @@ def self_test():
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'train')
 	data_set.sub_sampling(FLAGS.subsampling_rate)
 
-	# add image features
-	data_set.read_image_features(FLAGS.data_dir)
+	# # add image features
+	# data_set.read_image_features(FLAGS.data_dir)
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
