@@ -91,9 +91,9 @@ class MultiViewEmbedding_model(object):
 		self.product_idxs = tf.placeholder(tf.int64, shape=[None], name="product_idxs")
 		self.word_idxs = tf.placeholder(tf.int64, shape=[None], name="word_idxs")
 		
-		# self.img_feature_num = data_set.img_feature_num
+		self.img_feature_num = data_set.img_feature_num
 		# self.rate_factor_num = data_set.rate_factor_num
-		self.img_feature_num = None
+		# self.img_feature_num = None
 		self.rate_factor_num = None
 		#self.product_img_features = tf.placeholder(tf.float32, shape=[None, self.img_feature_num], name="img_features")
 		#self.neg_product_idxs = tf.placeholder(tf.int64, shape=[self.negative_sample], name="neg_product_idxs")

@@ -62,7 +62,7 @@ tf.app.flags.DEFINE_integer("batch_size", 64,
 #rank list size should be read from data
 tf.app.flags.DEFINE_string("data_dir", "/tmp", "Data directory")
 tf.app.flags.DEFINE_string("input_train_dir", "", "The directory of training and testing data")
-tf.app.flags.DEFINE_string("train_dir", "/tmp", "Model directory & output directory")
+tf.app.flags.DEFINE_string("train_dir", "./results", "Model directory & output directory")
 tf.app.flags.DEFINE_string("similarity_func", "product", "Select similarity function")
 tf.app.flags.DEFINE_string("net_struct", "simplified_bpr", "Select network structure")
 tf.app.flags.DEFINE_integer("embed_size", 300, "Size of each embedding.")
@@ -89,6 +89,9 @@ tf.app.flags.DEFINE_boolean("self_test", False,
 
 FLAGS = tf.app.flags.FLAGS
 
+import os 
+dataset = FLAGS.data_dir.split('/')[-3]
+train_dir = os.path.join(FLAGS.train_dir, dataset, FLAGS.net_struct, 'emb%d' % FLAGS.embed_size)
 
 def create_model(session, forward_only, data_set, review_size):
 	"""Create translation model and initialize or load parameters in session."""
@@ -97,7 +100,7 @@ def create_model(session, forward_only, data_set, review_size):
 			data_set.product_size, data_set.vocab_distribute, data_set.review_distribute, data_set.product_distribute,
 			FLAGS.window_size, FLAGS.embed_size, FLAGS.max_gradient_norm, FLAGS.batch_size,
 			FLAGS.learning_rate, FLAGS.L2_lambda, FLAGS.image_weight, FLAGS.net_struct, FLAGS.similarity_func, forward_only, FLAGS.negative_sample)
-	ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
+	ckpt = tf.train.get_checkpoint_state(train_dir)
 	if ckpt:
 		print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
 		model.saver.restore(session, ckpt.model_checkpoint_path)
@@ -114,15 +117,16 @@ def train():
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'train')
 	data_set.sub_sampling(FLAGS.subsampling_rate)
 
-	# # add image features
-	# data_set.read_image_features(FLAGS.data_dir)
+	# add image features
+	data_set.read_image_features(FLAGS.data_dir)
 
 	# # add rating features
 	# data_set.read_latent_factor(FLAGS.data_dir)
 
 	# create dir:
-	if not os.path.isdir(FLAGS.train_dir):
-		os.makedirs(FLAGS.train_dir)
+	print('saving at %s' % train_dir)
+	if not os.path.isdir(train_dir):
+		os.makedirs(train_dir)
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
@@ -183,7 +187,7 @@ def train():
 			#model.saver.save(sess, checkpoint_path_best, global_step=model.global_step)
 			if current_epoch >= FLAGS.max_train_epoch:	
 				break
-		checkpoint_path_best = os.path.join(FLAGS.train_dir, "MultiViewEmbedding.ckpt")
+		checkpoint_path_best = os.path.join(train_dir, "MultiViewEmbedding.ckpt")
 		model.saver.save(sess, checkpoint_path_best, global_step=model.global_step)
 
 
@@ -195,8 +199,8 @@ def get_product_scores():
 	
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'test')
 	data_set.read_train_product_ids(FLAGS.input_train_dir)
-	# # add image features
-	# data_set.read_image_features(FLAGS.data_dir)
+	# add image features
+	data_set.read_image_features(FLAGS.data_dir)
 	# # add rating features
 	# data_set.read_latent_factor(FLAGS.data_dir)
 
@@ -233,7 +237,7 @@ def get_product_scores():
 			if current_step % FLAGS.steps_per_checkpoint == 0:
 				print("Finish test review %d/%d\r" % (model.cur_review_i, model.review_size))
 
-	data_set.output_ranklist(user_ranklist_map, user_ranklist_score_map, FLAGS.train_dir, FLAGS.similarity_func)
+	data_set.output_ranklist(user_ranklist_map, user_ranklist_score_map, train_dir, FLAGS.similarity_func)
 	return
 
 def output_embedding():
@@ -242,8 +246,8 @@ def output_embedding():
 	
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir,FLAGS.input_train_dir, 'test')
 	data_set.read_train_product_ids(FLAGS.input_train_dir)
-	# # add image features
-	# data_set.read_image_features(FLAGS.data_dir)
+	# add image features
+	data_set.read_image_features(FLAGS.data_dir)
 	# # add rating features
 	# data_set.read_latent_factor(FLAGS.data_dir)
 
@@ -269,8 +273,8 @@ def output_embedding():
 			# record the results
 			user_emb = part_1[0]
 			product_emb = part_1[1]
-			data_set.output_embedding(user_emb, FLAGS.train_dir + 'user_emb.txt')
-			data_set.output_embedding(product_emb, FLAGS.train_dir + 'product_emb.txt')
+			data_set.output_embedding(user_emb, train_dir + 'user_emb.txt')
+			data_set.output_embedding(product_emb, train_dir + 'product_emb.txt')
 	return
 
 
@@ -284,8 +288,8 @@ def self_test():
 	data_set = data_util.Tensorflow_data(FLAGS.data_dir, FLAGS.input_train_dir, 'train')
 	data_set.sub_sampling(FLAGS.subsampling_rate)
 
-	# # add image features
-	# data_set.read_image_features(FLAGS.data_dir)
+	# add image features
+	data_set.read_image_features(FLAGS.data_dir)
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True

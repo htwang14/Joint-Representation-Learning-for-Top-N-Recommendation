@@ -38,7 +38,7 @@ print(str(count) + '/' + str(len(product_ids)) + ' do not have image features')
 
 
 # output image features
-print(" ".join(str(x) for x in image_features[1][500:510]))
+# print(" ".join(str(x) for x in image_features[1][500:510]))
 with open(data_path + 'product_image_feature.b', 'wb') as fout:
 	for feature in image_features:
 		if feature == None:
