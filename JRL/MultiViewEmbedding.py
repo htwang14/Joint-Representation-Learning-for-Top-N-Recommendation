@@ -397,15 +397,15 @@ class MultiViewEmbedding_model(object):
 		example_vec = tf.nn.embedding_lookup(example_emb, example_idxs)
 
 		#get label embeddings and bias [batch_size, embed_size], [batch_size, 1]
-		true_w = tf.nn.embedding_lookup(label_emb, label_idxs)
+		true_w = tf.nn.embedding_lookup(label_emb, label_idxs) # posi review embeddings of a user
 		true_b = tf.nn.embedding_lookup(label_bias, label_idxs)
 
 		#get sampled embeddings and bias [num_sampled, embed_size], [num_sampled, 1]
-		sampled_w = tf.nn.embedding_lookup(label_emb, sampled_ids)
+		sampled_w = tf.nn.embedding_lookup(label_emb, sampled_ids) # negative review embeddings of a user
 		sampled_b = tf.nn.embedding_lookup(label_bias, sampled_ids)
 
 		# True logits: [batch_size, 1]
-		true_logits = tf.reduce_sum(tf.multiply(example_vec, true_w), 1) + true_b
+		true_logits = tf.reduce_sum(tf.multiply(example_vec, true_w), 1) + true_b # add a projection matrix on true_w to deal with dimensional mismatch.
 
 		# Sampled logits: [batch_size, num_sampled]
 		# We replicate sampled noise lables for all examples in the batch
@@ -504,9 +504,9 @@ class MultiViewEmbedding_model(object):
 
 		# cross-entropy(logits, labels)
 		true_xent = tf.nn.sigmoid_cross_entropy_with_logits(
-				logits=true_logits, labels=tf.ones_like(true_logits))
+				logits=true_logits, labels=tf.ones_like(true_logits)) # pos samples
 		sampled_xent = tf.nn.sigmoid_cross_entropy_with_logits(
-				logits=sampled_logits, labels=tf.zeros_like(sampled_logits))
+				logits=sampled_logits, labels=tf.zeros_like(sampled_logits)) # neg samples
 
 		# NCE-loss is the sum of the true and noise (sampled words)
 		# contributions, averaged over the batch.
@@ -576,7 +576,7 @@ class MultiViewEmbedding_model(object):
 			else:
 				output_feed = [self.product_scores] #negative instance output
 	
-		outputs = session.run(output_feed, input_feed)
+		outputs = session.run(output_feed, feed_dict=input_feed)
 
 		if not forward_only:
 			return outputs[1], None	# loss, no outputs, Gradient norm.

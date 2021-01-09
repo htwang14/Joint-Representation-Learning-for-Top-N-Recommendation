@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 3 different model structure settings: simplified_bpr_text, simplified_bpr_image, simplified_bpr_text_image
+
+## data prepare
 # movies:
 python ./scripts/index_and_filter_review_file.py \
     /hdd3/haotao/amazon_review_dataset/reviews_Movies_and_TV_5.json.gz \
@@ -70,7 +73,7 @@ python ./scripts/match_with_image_features.py \
     /hdd3/haotao/amazon_review_dataset/reviews_Cell_Phones_and_Accessories_5/min_count1/ \
     /hdd3/haotao/amazon_review_dataset/image_features_Cell_Phones_and_Accessories.b
 
-# train:
+## train:
 
 # movies:
 CUDA_VISIBLE_DEVICES=0 python ./JRL/main.py \

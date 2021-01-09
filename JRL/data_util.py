@@ -76,7 +76,7 @@ class Tensorflow_data:
 		item = pd.read_csv(item_latent_factor_file_name).iloc[:, 1:]
 		self.user_factors = user.values[:self.user_size]
 		self.product_factors = item.values[:self.product_size]
-		self.rate_factor_num = len(self.user_factors[0])
+		self.rate_factor_num = len(self.user_factors[0]) # 200
 		print('Rate factor size ' + str(self.rate_factor_num))
 		#return user.values, item.values
 
