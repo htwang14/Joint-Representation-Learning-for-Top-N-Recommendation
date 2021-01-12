@@ -1,5 +1,5 @@
 import numpy as np
-import json
+import json, os
 import random
 import gzip
 import math
@@ -106,7 +106,7 @@ class Tensorflow_data:
 
 
 	def output_ranklist(self, user_ranklist_map, user_ranklist_score_map, output_path, similarity_func):
-		with open(output_path + 'test.'+similarity_func+'.ranklist', 'w') as rank_fout:
+		with open(os.path.join(output_path, 'test.'+similarity_func+'.ranklist'), 'w') as rank_fout:
 			for u_idx in user_ranklist_map:
 				user_id = self.user_ids[u_idx]
 				for i in range(len(user_ranklist_map[u_idx])):
